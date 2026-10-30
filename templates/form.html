@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% macro field(name, label, value, placeholder='', hint='') %}
+  <div class="col-md-6">
+    <label class="form-label" for="{{ name }}">{{ label }}</label>
+    <input class="form-control {{ 'is-invalid' if errors.get(name) }}" id="{{ name }}" name="{{ name }}"
+           value="{{ value if value is not none else '' }}" placeholder="{{ placeholder }}" autocomplete="off">
+    {% if errors.get(name) %}<div class="invalid-feedback">{{ errors[name] }}</div>
+    {% elif hint %}<div class="form-text">{{ hint }}</div>{% endif %}
+  </div>
+{% endmacro %}
+
+{% block content %}
+<div class="card shadow-sm mx-auto" style="max-width: 760px;">
+  <div class="card-header bg-white">
+    <h1 class="h5 mb-0">{{ 'Add Patient' if mode == 'add' else 'Edit Patient' }}</h1>
+  </div>
+  <div class="card-body">
+    <form method="post" novalidate>
+      <div class="row g-3">
+        {{ field('full_name', 'Full Name', data.get('full_name'), 'e.g. Jane Citizen') }}
+        {{ field('dob', 'Date of Birth', data.get('dob_text'), 'dd/mm/yyyy', 'Format: dd/mm/yyyy') }}
+        {{ field('email', 'Email Address', data.get('email'), 'name@example.com') }}
+        <div class="col-md-6"></div>
+        {{ field('glucose', 'Glucose (mg/dL)', data.get('glucose_text'), '', 'Allowed range: 20 - 800') }}
+        {{ field('haemoglobin', 'Haemoglobin (g/dL)', data.get('haemoglobin_text'), '', 'Allowed range: 3 - 25') }}
+        {{ field('cholesterol', 'Cholesterol (mg/dL)', data.get('cholesterol_text'), '', 'Allowed range: 50 - 600') }}
+      </div>
+      <p class="text-muted small mt-3 mb-0">
+        Remarks are generated automatically by the AI service when the record is saved.
+      </p>
+      <div class="mt-4 d-flex gap-2">
+        <button class="btn btn-primary" type="submit">{{ 'Save &amp; Predict'|safe if mode == 'add' else 'Update &amp; Re-predict'|safe }}</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('index') }}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

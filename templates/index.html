@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <h1 class="h4 mb-0">Patient Records <span class="text-muted fs-6">({{ patients|length }})</span></h1>
+  <form class="d-flex gap-2" method="get">
+    <input class="form-control form-control-sm" name="q" value="{{ q }}" placeholder="Search name or email">
+    <button class="btn btn-outline-primary btn-sm">Search</button>
+    {% if q %}<a class="btn btn-outline-secondary btn-sm" href="{{ url_for('index') }}">Clear</a>{% endif %}
+  </form>
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>#</th><th>Full Name</th><th>Date of Birth</th><th>Email</th>
+          <th>Glucose<br><small class="fw-normal">mg/dL</small></th>
+          <th>Haemoglobin<br><small class="fw-normal">g/dL</small></th>
+          <th>Cholesterol<br><small class="fw-normal">mg/dL</small></th>
+          <th>Remarks (AI)</th><th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for p in patients %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ p.full_name }}</td>
+          <td>{{ p.dob|dmy }}</td>
+          <td>{{ p.email }}</td>
+          <td>{{ '%g'|format(p.glucose) }}</td>
+          <td>{{ '%g'|format(p.haemoglobin) }}</td>
+          <td>{{ '%g'|format(p.cholesterol) }}</td>
+          <td class="remarks">{{ p.remarks }}</td>
+          <td class="text-end text-nowrap">
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('edit', pid=p.id) }}">Edit</a>
+            <form class="d-inline" method="post" action="{{ url_for('regenerate', pid=p.id) }}">
+              <button class="btn btn-sm btn-outline-secondary" title="Re-run AI prediction">Regenerate</button>
+            </form>
+            <form class="d-inline" method="post" action="{{ url_for('delete', pid=p.id) }}"
+                  onsubmit="return confirm('Delete record for {{ p.full_name|e }}?');">
+              <button class="btn btn-sm btn-outline-danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="9" class="text-center text-muted py-4">No records found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
